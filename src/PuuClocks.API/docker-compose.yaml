@@ -1,0 +1,43 @@
+version: '3.9'
+
+services:
+  app:
+    container_name: puuclocks-api
+    depends_on:
+      - mysql
+      - redis
+    env_file: .env.docker
+    image:
+      cosmtrek/air:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./:/app
+    working_dir: /app
+    command: "go run ./cmd/main.go"
+
+  redis:
+    image: redis:7.0.9
+    container_name: redis
+    hostname: redis
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - "6379:6379"
+
+  mysql:
+    image: mysql:8.3.0
+    container_name: mysql
+    hostname: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+    healthcheck:
+      test: ["CMD", "mysql", "-u", "root", "-proot", "-e", "SELECT 1"]
+      timeout: 20s
+      retries: 10
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./seed:/docker-entrypoint-initdb.d
+

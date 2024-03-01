@@ -1,0 +1,3 @@
+[build]
+  # Build binary.
+  cmd = "go build -o ./tmp/main ./cmd"
