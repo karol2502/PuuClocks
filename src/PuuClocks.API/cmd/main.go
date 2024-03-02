@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"puuclocks/internal/infrastructure"
 	"puuclocks/internal/repository"
 
 	"github.com/gin-gonic/gin"
@@ -11,6 +12,10 @@ func main() {
 	dbCfg := repository.DatabasesConfig{
 		RedisConfig: repository.RedisConfig{
 			Addr: "redis:6379",
+		},
+		MySqlConfig: infrastructure.MySqlConfig{
+			DBName: "mysql",
+			Path: "root:root@tcp(mysql:3306)/puuclocks",
 		},
 	}
 
