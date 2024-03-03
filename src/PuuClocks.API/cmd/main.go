@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"puuclocks/internal/infrastructure"
 	"puuclocks/internal/repository"
+	"puuclocks/internal/sockets"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,7 +17,7 @@ func main() {
 		},
 		MySqlConfig: infrastructure.MySqlConfig{
 			DBName: "mysql",
-			Path: "root:root@tcp(mysql:3306)/puuclocks",
+			Path:   "root:root@tcp(mysql:3306)/puuclocks",
 		},
 	}
 
@@ -30,6 +32,13 @@ func main() {
 			"message": "pong",
 		})
 	})
+
+	lobby := sockets.NewLobby()
+	r.GET("/ws", func(c *gin.Context) {
+		fmt.Println(len(lobby.Clients) + 1, " Users")
+		lobby.JoinLobby(c.Writer, c.Request)
+	})
+	go lobby.Run()
 
 	httpServer := &http.Server{
 		Addr:    ":8080",
