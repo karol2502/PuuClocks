@@ -28,7 +28,5 @@ func (l lobbyManager) CreateLobby() Lobby {
 }
 
 func (l lobbyManager) FindLobby(id uuid.UUID) Lobby {
-	lobby, _ := l.Lobbies[id]
-
-	return lobby
+	return l.Lobbies[id]
 }

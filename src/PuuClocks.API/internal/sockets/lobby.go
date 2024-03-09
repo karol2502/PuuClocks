@@ -1,6 +1,6 @@
 package sockets
 
-import ( 
+import (
 	"github.com/google/uuid"
 )
 
@@ -15,12 +15,12 @@ type Lobby interface {
 
 type lobby struct {
 	ID uuid.UUID
-	
+
 	Owner Client
 
 	Join    chan Client
 	Leave   chan Client
-	Forward chan ([]byte)
+	Forward chan []byte
 
 	Clients map[Client]bool
 }
@@ -28,7 +28,7 @@ type lobby struct {
 func NewLobby() Lobby {
 	id := uuid.New()
 
-	lobby := lobby{
+	l := lobby{
 		ID: id,
 
 		Forward: make(chan []byte),
@@ -37,9 +37,9 @@ func NewLobby() Lobby {
 		Clients: make(map[Client]bool),
 	}
 
-	go lobby.run()
+	go l.run()
 
-	return &lobby
+	return &l
 }
 
 func (l *lobby) run() {
@@ -70,10 +70,10 @@ func (l *lobby) JoinLobby(c Client) {
 	if l.Owner == nil {
 		l.Owner = c
 	}
-	
+
 	l.Join <- c
 }
 
-func (l lobby) LeaveLobby(c Client)  {
+func (l lobby) LeaveLobby(c Client) {
 	l.Leave <- c
 }

@@ -59,7 +59,7 @@ func (c *client) Read() {
 func (c *client) Write() {
 	defer c.Socket.Close()
 	for msg := range c.Receive {
-		fmt.Println("Writting message: ", string(msg))
+		fmt.Println("Writing message: ", string(msg))
 		err := c.Socket.WriteMessage(websocket.TextMessage, msg)
 		if err != nil {
 			return

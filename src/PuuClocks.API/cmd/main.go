@@ -1,15 +1,16 @@
 package main
 
 import (
-	"log"
 	"net/http"
 	"puuclocks/internal/infrastructure"
+	"puuclocks/internal/log"
 	"puuclocks/internal/repository"
-	"time"
 	"puuclocks/internal/sockets"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/gorilla/websocket"
 )
 
 func main() {
@@ -44,30 +45,38 @@ func main() {
 	})
 
 	r.GET("/join-lobby/:id", func(c *gin.Context) {
-		conn, err := sockets.Upgrader.Upgrade(c.Writer, c.Request, nil)
+		var conn *websocket.Conn
+		var parsedID uuid.UUID
+		conn, err = sockets.Upgrader.Upgrade(c.Writer, c.Request, nil)
 		if err != nil {
-			log.Println(err)
+			log.Log.Errorln(err)
 			return
 		}
 		defer conn.Close()
 		id := c.Param("id")
 
-		parsedID, err := uuid.Parse(id)
+		parsedID, err = uuid.Parse(id)
 		if err != nil {
-			conn.WriteJSON(map[string]string{
+			if err = conn.WriteJSON(map[string]string{
 				"message": "User not passed lobby UUID",
-			})
+			}); err != nil {
+				log.Log.Errorln(err)
+			}
 		} else {
 			l := lobbyManager.FindLobby(parsedID)
 			if l == nil {
-				conn.WriteJSON(map[string]string{
+				if err = conn.WriteJSON(map[string]string{
 					"message": "Lobby not found",
-				})
+				}); err != nil {
+					log.Log.Errorln(err)
+				}
 			} else {
 				sockets.NewClient(conn, l)
-				conn.WriteJSON(map[string]string{
+				if err = conn.WriteJSON(map[string]string{
 					"message": "User connected",
-				})
+				}); err != nil {
+					log.Log.Errorln(err)
+				}
 			}
 		}
 	})
