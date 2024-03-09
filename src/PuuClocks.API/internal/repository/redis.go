@@ -1,8 +1,9 @@
 package repository
 
 import (
-	r "github.com/redis/go-redis/v9"
 	"puuclocks/internal/infrastructure"
+
+	r "github.com/redis/go-redis/v9"
 )
 
 type Redis interface {
@@ -20,7 +21,7 @@ type RedisConfig struct {
 
 func newRedis(config RedisConfig) Redis {
 	rdb := r.NewClient(&r.Options{
-		Addr: config.Addr,
+		Addr:     config.Addr,
 		Password: config.Password,
 	})
 

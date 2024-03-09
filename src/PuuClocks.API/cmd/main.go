@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"puuclocks/internal/infrastructure"
 	"puuclocks/internal/repository"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,13 +14,13 @@ func main() {
 		RedisConfig: repository.RedisConfig{
 			Addr: "redis:6379",
 		},
-		MySqlConfig: infrastructure.MySqlConfig{
+		MySQLConfig: infrastructure.MySQLConfig{
 			DBName: "mysql",
-			Path: "root:root@tcp(mysql:3306)/puuclocks",
+			Path:   "root:root@tcp(mysql:3306)/puuclocks",
 		},
 	}
 
-	_, err := repository.NewDatabases(dbCfg)
+	_, err := repository.NewDatabases(&dbCfg)
 	if err != nil {
 		panic(err)
 	}
@@ -32,8 +33,9 @@ func main() {
 	})
 
 	httpServer := &http.Server{
-		Addr:    ":8080",
-		Handler: r,
+		Addr:              ":8080",
+		Handler:           r,
+		ReadHeaderTimeout: time.Second,
 	}
 
 	err = httpServer.ListenAndServe()
