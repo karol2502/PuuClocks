@@ -8,23 +8,26 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-type MySql interface{
+type MySQL interface {
 	Close() error
 	Query(query string, args ...string) (*sql.Rows, error)
 	QueryRow(query string, args ...string) *sql.Row
 	Exec(query string, args ...string) (sql.Result, error)
 }
 
-type mySql struct {
+type mySQL struct {
 	DB *sql.DB
 }
 
-type MySqlConfig struct {
-	DBName string
-	Path string
+type MySQLConfig struct {
+	DBName                   string
+	Path                     string
+	MaxIdleConns             int
+	MaxOpenConns             int
+	ConnMaxLifetimeInMinutes int
 }
 
-func NewMySql(config MySqlConfig) (MySql, error) {
+func NewMySQL(config MySQLConfig) (MySQL, error) {
 	db, err := sql.Open(config.DBName, config.Path)
 	if err != nil {
 		return nil, fmt.Errorf("mysql - couldn't open db: %w", err)
@@ -35,27 +38,27 @@ func NewMySql(config MySqlConfig) (MySql, error) {
 		return nil, fmt.Errorf("mysql - connection is not healthy: %w", err)
 	}
 
-	db.SetConnMaxLifetime(time.Minute * 3)
-	db.SetMaxOpenConns(10)
-	db.SetMaxIdleConns(10)
+	db.SetConnMaxLifetime(time.Minute * time.Duration(config.ConnMaxLifetimeInMinutes))
+	db.SetMaxOpenConns(config.MaxOpenConns)
+	db.SetMaxIdleConns(config.MaxIdleConns)
 
-	return mySql{
+	return mySQL{
 		DB: db,
-	},nil
+	}, nil
 }
 
-func (m mySql) Close() error {
+func (m mySQL) Close() error {
 	return m.DB.Close()
 }
 
-func (m mySql) Query(query string, args ...string) (*sql.Rows, error) {
+func (m mySQL) Query(query string, args ...string) (*sql.Rows, error) {
 	return m.DB.Query(query, args)
 }
 
-func (m mySql) QueryRow(query string, args ...string) *sql.Row {
+func (m mySQL) QueryRow(query string, args ...string) *sql.Row {
 	return m.DB.QueryRow(query, args)
 }
 
-func (m mySql) Exec(query string, args ...string) (sql.Result, error) {
-	return m.DB.Exec(query,args)
+func (m mySQL) Exec(query string, args ...string) (sql.Result, error) {
+	return m.DB.Exec(query, args)
 }

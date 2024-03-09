@@ -1,8 +1,8 @@
 package models
 
 type Player struct {
-	AccountID int64
+	AccountID    int64
 	ConnectionID int64
-	Nickname string
-	PlayingHand []Card
+	Nickname     string
+	PlayingHand  []Card
 }
