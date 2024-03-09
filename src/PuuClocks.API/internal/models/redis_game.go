@@ -1,16 +1,16 @@
 package models
 
 type Game struct {
-	ID int64
-	Rules []Rule
+	ID     int64
+	Rules  []Rule
 	Winner *int64
-	//EventHistory
+	// EventHistory
 	LastPlayedCard *Card
 	DiscardedCards []Card
 	AreRulesBroken bool
-	Turn int
-	Direction bool
-	ExpectedTime float64
+	Turn           int
+	Direction      bool
+	ExpectedTime   float64
 }
 
 type Rule struct {
