@@ -1,70 +1,79 @@
 package sockets
 
-import (
-	"log"
-	"net/http"
-
-	"github.com/gorilla/websocket"
+import ( 
+	"github.com/google/uuid"
 )
 
-type Lobby struct {
+type Lobby interface {
+	GetID() uuid.UUID
+
+	JoinLobby(Client)
+	LeaveLobby(Client)
+
+	ForwardMessage([]byte)
+}
+
+type lobby struct {
+	ID uuid.UUID
+	
+	Owner Client
+
+	Join    chan Client
+	Leave   chan Client
 	Forward chan ([]byte)
-	Join    chan *Client
-	Leave   chan *Client
 
-	Clients map[*Client]bool
+	Clients map[Client]bool
 }
 
-func NewLobby() *Lobby {
-	return &Lobby{
+func NewLobby() Lobby {
+	id := uuid.New()
+
+	lobby := lobby{
+		ID: id,
+
 		Forward: make(chan []byte),
-		Join:    make(chan *Client),
-		Leave:   make(chan *Client),
-		Clients: make(map[*Client]bool),
+		Join:    make(chan Client),
+		Leave:   make(chan Client),
+		Clients: make(map[Client]bool),
 	}
+
+	go lobby.run()
+
+	return &lobby
 }
 
-func (l *Lobby) Run() {
+func (l *lobby) run() {
 	for {
 		select {
 		case client := <-l.Join:
 			l.Clients[client] = true
 		case client := <-l.Leave:
 			delete(l.Clients, client)
-			close(client.Receive)
+			client.Close()
 		case msg := <-l.Forward:
 			for c := range l.Clients {
-				c.Receive <- msg
+				c.ReceiveMessage(msg)
 			}
 		}
 	}
 }
 
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
+func (l lobby) GetID() uuid.UUID {
+	return l.ID
 }
 
-func (l *Lobby) JoinLobby(w http.ResponseWriter, r *http.Request){
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Println(err)
-		return
-	}
+func (l lobby) ForwardMessage(msg []byte) {
+	l.Forward <- msg
+}
 
-	c := &Client{
-		Socket: conn,
-		Receive: make(chan []byte, upgrader.ReadBufferSize),
-		Lobby: l,
+func (l *lobby) JoinLobby(c Client) {
+	if l.Owner == nil {
+		l.Owner = c
 	}
 	
 	l.Join <- c
+}
 
-	defer conn.Close()
-	defer func() {
-		l.Leave <- c
-	}()
-
-	go c.Write()
-	c.Read()
+func (l lobby) LeaveLobby(c Client)  {
+	l.Leave <- c
 }

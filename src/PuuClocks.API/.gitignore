@@ -22,3 +22,5 @@ go.work
 
 # Ignore build
 tmp/
+
+vendor/
