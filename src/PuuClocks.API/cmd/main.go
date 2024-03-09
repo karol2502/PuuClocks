@@ -24,6 +24,8 @@ func main() {
 		},
 	}
 
+	log.InitLogger()
+
 	_, err := repository.NewDatabases(&dbCfg)
 	if err != nil {
 		panic(err)
