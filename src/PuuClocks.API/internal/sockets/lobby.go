@@ -1,6 +1,9 @@
 package sockets
 
 import (
+	"puuclocks/internal/models"
+	"puuclocks/internal/service"
+
 	"github.com/google/uuid"
 )
 
@@ -10,7 +13,7 @@ type Lobby interface {
 	JoinLobby(Client)
 	LeaveLobby(Client)
 
-	ForwardMessage([]byte)
+	ForwardMessage(Message)
 }
 
 type lobby struct {
@@ -20,9 +23,21 @@ type lobby struct {
 
 	Join    chan Client
 	Leave   chan Client
-	Forward chan []byte
+	Forward chan Message
 
 	Clients map[Client]bool
+
+	Game *models.Game
+	Gameplay service.Gameplay
+
+	Settings Settings
+}
+
+type Settings struct{}
+
+type Message struct {
+	SocketID uuid.UUID
+	Data []byte
 }
 
 func NewLobby() Lobby {
@@ -31,7 +46,7 @@ func NewLobby() Lobby {
 	l := lobby{
 		ID: id,
 
-		Forward: make(chan []byte),
+		Forward: make(chan Message),
 		Join:    make(chan Client),
 		Leave:   make(chan Client),
 		Clients: make(map[Client]bool),
@@ -51,18 +66,16 @@ func (l *lobby) run() {
 			delete(l.Clients, client)
 			client.Close()
 		case msg := <-l.Forward:
-			for c := range l.Clients {
-				c.ReceiveMessage(msg)
-			}
+			l.Gameplay.ProcessAction(l.Game, msg.SocketID, models.ActionDrawCard, msg.Data)
 		}
 	}
 }
 
-func (l lobby) GetID() uuid.UUID {
+func (l *lobby) GetID() uuid.UUID {
 	return l.ID
 }
 
-func (l lobby) ForwardMessage(msg []byte) {
+func (l *lobby) ForwardMessage(msg Message) {
 	l.Forward <- msg
 }
 
@@ -74,6 +87,9 @@ func (l *lobby) JoinLobby(c Client) {
 	l.Join <- c
 }
 
-func (l lobby) LeaveLobby(c Client) {
+func (l *lobby) LeaveLobby(c Client) {
 	l.Leave <- c
+}
+
+func (l *lobby) StartGame() {
 }

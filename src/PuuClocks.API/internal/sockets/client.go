@@ -3,6 +3,7 @@ package sockets
 import (
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
 
@@ -12,6 +13,7 @@ type Client interface {
 }
 
 type client struct {
+	ID uuid.UUID
 	Socket *websocket.Conn
 
 	Receive chan []byte
@@ -26,6 +28,7 @@ var Upgrader = websocket.Upgrader{
 
 func NewClient(conn *websocket.Conn, l Lobby) Client {
 	c := &client{
+		ID: uuid.New(),
 		Socket:  conn,
 		Receive: make(chan []byte, Upgrader.ReadBufferSize),
 		Lobby:   l,
@@ -52,7 +55,10 @@ func (c *client) Read() {
 			_ = fmt.Errorf("there was a error when reading message for Client: %w", err)
 			return
 		}
-		c.Lobby.ForwardMessage(msg)
+		c.Lobby.ForwardMessage(Message{
+			SocketID: c.ID,
+			Data: msg,
+		})
 	}
 }
 
