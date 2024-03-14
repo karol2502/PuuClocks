@@ -40,7 +40,7 @@ type Message struct {
 	Data []byte
 }
 
-func NewLobby() Lobby {
+func NewLobby(gameplay service.Gameplay) Lobby {
 	id := uuid.New()
 
 	l := lobby{
@@ -50,6 +50,8 @@ func NewLobby() Lobby {
 		Join:    make(chan Client),
 		Leave:   make(chan Client),
 		Clients: make(map[Client]bool),
+
+		Gameplay: gameplay,
 	}
 
 	go l.run()
