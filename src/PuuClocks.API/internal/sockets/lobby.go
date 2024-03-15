@@ -1,7 +1,9 @@
 package sockets
 
 import (
+	"fmt"
 	"puuclocks/internal/models"
+	"puuclocks/internal/models/actions"
 	"puuclocks/internal/service"
 
 	"github.com/google/uuid"
@@ -37,7 +39,7 @@ type Settings struct{}
 
 type Message struct {
 	SocketID uuid.UUID
-	Data []byte
+	Data string
 }
 
 func NewLobby(gameplay service.Gameplay) Lobby {
@@ -68,7 +70,13 @@ func (l *lobby) run() {
 			delete(l.Clients, client)
 			client.Close()
 		case msg := <-l.Forward:
-			l.Gameplay.ProcessAction(l.Game, msg.SocketID, models.ActionDrawCard, msg.Data)
+			fmt.Println("Action From: ", msg.SocketID, " Data: ", msg.Data)
+			action := actions.ValidateIsInstanceAction(msg.Data)
+			if action == nil {
+				fmt.Println("There was a error during valdiation")
+				break;
+			}
+			l.Gameplay.ProcessAction(l.Game, msg.SocketID, *action)
 		}
 	}
 }
@@ -95,3 +103,4 @@ func (l *lobby) LeaveLobby(c Client) {
 
 func (l *lobby) StartGame() {
 }
+

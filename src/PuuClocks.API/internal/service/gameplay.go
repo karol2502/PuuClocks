@@ -7,7 +7,7 @@ import (
 )
 
 type Gameplay interface {
-	ProcessAction(game *models.Game, socketID uuid.UUID, action models.Action, data any) (bool, error)
+	ProcessAction(game *models.Game, socketID uuid.UUID, action models.Action) (bool, error)
 }
 
 type gameplay struct {
@@ -30,30 +30,29 @@ func newGameplay(services gamePlayServices) Gameplay {
 	}
 }
 
-func (g gameplay) ProcessAction(game *models.Game, socketID uuid.UUID, action models.Action, data any) (bool, error) {
-	canBePerformed, err := g.validate.ValidateAction(game, socketID, action, data)
+func (g gameplay) ProcessAction(game *models.Game, socketID uuid.UUID, action models.Action) (bool, error) {
+	canBePerformed, err := g.validate.ValidateAction(game, socketID, action)
 	if err != nil {
 		return true, err
 	}
 
 	if !canBePerformed {
 		return false, nil
-	} 
+	}
 
-	err = g.conclude.ConcludeAction(game, socketID, action, data)
+	err = g.conclude.ConcludeAction(game, socketID, action)
 	if err != nil {
 		return true, err
 	}
 
-	err = g.action.PerformAction(game, socketID, action, data)
+	err = g.action.PerformAction(game, socketID, action)
 	if err != nil {
 		return true, err
 	}
 
-
-	return g.shouldCloseGame(game, socketID, action, data)
+	return g.shouldCloseGame(game, socketID, action)
 }
 
-func (g gameplay) shouldCloseGame(game *models.Game, socketID uuid.UUID, action models.Action, data any) (bool, error) {
+func (g gameplay) shouldCloseGame(game *models.Game, socketID uuid.UUID, action models.Action) (bool, error) {
 	return false, nil
 }

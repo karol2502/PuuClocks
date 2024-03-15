@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"puuclocks/internal/models"
 	"puuclocks/internal/repository"
 
@@ -8,7 +9,7 @@ import (
 )
 
 type Action interface {
-	PerformAction(game *models.Game, socketID uuid.UUID, action models.Action, data any) error
+	PerformAction(game *models.Game, socketID uuid.UUID, action models.Action) error
 }
 
 type action struct {
@@ -21,6 +22,8 @@ func newAction(redis repository.Redis) Action {
 	}
 }
 
-func (a action) PerformAction(game *models.Game, socketID uuid.UUID, action models.Action, data any) error {
+func (a action) PerformAction(game *models.Game, socketID uuid.UUID, action models.Action) error {
+	fmt.Println(action.GetType())
+
 	return nil
 }
