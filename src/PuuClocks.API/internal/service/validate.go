@@ -21,6 +21,10 @@ func newValidate() Validate {
 }
 
 func (v validate) ValidateAction(game *models.Game, socketID uuid.UUID, action actions.Action) (bool, error) {
+	if action.GetType() == actions.ActionTypeEndOfTurn {
+		return true, nil
+	}
+	
 	switch game.State {
 	case models.GameStateReportTime:
 		if action.GetType() != actions.ActionTypeReportTime {

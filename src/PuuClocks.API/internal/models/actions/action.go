@@ -1,12 +1,14 @@
 package actions
 
+import "puuclocks/internal/models"
+
 type ActionType string
 
 var (
 	ActionTypeStartGame ActionType = "start-game"
 
 	// ServerActions
-	EndOfTurn ActionType = "validate-turn-result"
+	ActionTypeEndOfTurn ActionType = "validate-turn-result"
 
 	// Gameplay related
 	ActionTypeReportError         ActionType = "report-error"
@@ -16,6 +18,7 @@ var (
 
 type ActionData struct {
 	ReportedTime *float64
+	State *models.GameState
 }
 
 type Action interface {
