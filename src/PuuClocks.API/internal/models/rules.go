@@ -8,16 +8,16 @@ type Rule struct {
 }
 
 func (r Rule) Occure(g *Game, c *Card) (bool, error) {
-	rule, ok := WhenRules[r.WhenID]
+	rule, ok := RulesWhen[r.WhenID]
 	if !ok {
 		return false, fmt.Errorf("couldn't find when rule with %d id", r.WhenID)
 	}
 
-	return rule(g,c), nil
+	return rule(g, c), nil
 }
 
-func (r Rule) Then(g* Game) error {
-	then, ok := ThenRules[r.ThenID]
+func (r Rule) Then(g *Game) error {
+	then, ok := RulesThen[r.ThenID]
 	if !ok {
 		return fmt.Errorf("couldn't find then rule with %d id", r.ThenID)
 	}

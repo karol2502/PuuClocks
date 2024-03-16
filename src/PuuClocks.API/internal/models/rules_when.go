@@ -1,6 +1,6 @@
 package models
 
-var WhenRules = map[int]func(*Game, *Card) bool{
+var RulesWhen = map[int]func(*Game, *Card) bool{
 	1: SameClockRule,
 	2: WehicleCard,
 }
