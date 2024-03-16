@@ -11,9 +11,11 @@ type Game struct {
 	AreRulesBroken bool
 	Turn           int
 	Direction      bool
+
+	LastCalledTime float64
 	
 	ExpectedTime   float64
-	ExpectedSynchronization *bool
+	ExpectedSynchronization bool
 
 	Players []*Player
 	State GameState
@@ -27,13 +29,9 @@ const (
 	GameStateSynchronization
 )
 
-type Rule struct {
-	WhenID int64
-	WhatID int64
-}
-
 func NewGame() Game {
 	return Game{
 		ID: uuid.New(),
+		Rules: DefaultRules(),
 	}
 }
