@@ -22,5 +22,9 @@ func newConclude(redis repository.Redis) Conclude {
 }
 
 func (c conclude) ConcludeAction(game *models.Game, socketID uuid.UUID, action models.Action) error {
+	if game.AreRulesBroken {
+		return nil
+	}
+
 	return nil
 }

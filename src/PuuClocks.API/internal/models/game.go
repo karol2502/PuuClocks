@@ -3,17 +3,18 @@ package models
 import "github.com/google/uuid"
 
 type Game struct {
-	ID     uuid.UUID
-	Rules  []Rule
+	ID             uuid.UUID
+	Rules          []Rule
 	LastPlayedCard *Card
 	DiscardedCards []Card
 
 	AreRulesBroken bool
 	Turn           int
 	Direction      bool
+	Overload       bool
 	ExpectedTime   float64
 
-	State []*Player
+	State      []*Player
 	Scoreboard map[*Player]int
 }
 

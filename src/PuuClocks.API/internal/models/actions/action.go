@@ -4,9 +4,10 @@ type ActionType string
 
 var (
 	ActionTypeStartGame           ActionType = "start-game"
+
+	// Gameplay related
 	ActionTypeReportError         ActionType = "report-error"
 	ActionTypeReportTime          ActionType = "report-time"
-	ActionTypeDrawCard            ActionType = "draw-card"
 	ActionTypeSynchronizationRule ActionType = "synchronization-rule"
 )
 
@@ -29,6 +30,18 @@ func (a Action) GetData() ActionData {
 
 func ValidateIsInstanceAction(data string) *Action {
 	if action := (ReportTime{}).Validate(data); action != nil {
+		return action
+	}
+
+	if action := (ReportError{}).Validate(data); action != nil {
+		return action
+	}
+
+	if action := (StartGame{}).Validate(data); action != nil {
+		return action
+	}
+
+	if action := (SynchronizationRule{}).Validate(data); action != nil {
 		return action
 	}
 
