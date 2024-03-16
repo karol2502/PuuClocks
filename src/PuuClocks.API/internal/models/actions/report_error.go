@@ -1,15 +1,15 @@
 package actions
 
 type ReportError struct {
-	Action
+	action
 }
 
-func (r ReportError) Validate(data string) *Action {
+func (r ReportError) Validate(data string) *action {
 	if data != string(ActionTypeReportTime) {
 		return nil
 	}
 
-	return &Action{
+	return &action{
 		Type: ActionTypeReportError,
 	}
 }

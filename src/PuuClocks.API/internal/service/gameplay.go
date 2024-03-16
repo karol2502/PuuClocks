@@ -2,12 +2,13 @@ package service
 
 import (
 	"puuclocks/internal/models"
+	"puuclocks/internal/models/actions"
 
 	"github.com/google/uuid"
 )
 
 type Gameplay interface {
-	ProcessAction(game *models.Game, socketID uuid.UUID, action models.Action) (bool, error)
+	ProcessAction(game *models.Game, socketID uuid.UUID, action actions.Action) (bool, error)
 }
 
 type gameplay struct {
@@ -30,7 +31,7 @@ func newGameplay(services gamePlayServices) Gameplay {
 	}
 }
 
-func (g gameplay) ProcessAction(game *models.Game, socketID uuid.UUID, action models.Action) (bool, error) {
+func (g gameplay) ProcessAction(game *models.Game, socketID uuid.UUID, action actions.Action) (bool, error) {
 	canBePerformed, err := g.validate.ValidateAction(game, socketID, action)
 	if err != nil {
 		return true, err
@@ -53,6 +54,6 @@ func (g gameplay) ProcessAction(game *models.Game, socketID uuid.UUID, action mo
 	return g.shouldCloseGame(game, socketID, action)
 }
 
-func (g gameplay) shouldCloseGame(game *models.Game, socketID uuid.UUID, action models.Action) (bool, error) {
+func (g gameplay) shouldCloseGame(game *models.Game, socketID uuid.UUID, action actions.Action) (bool, error) {
 	return false, nil
 }

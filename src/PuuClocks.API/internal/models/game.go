@@ -11,8 +11,9 @@ type Game struct {
 	AreRulesBroken bool
 	Turn           int
 	Direction      bool
-	Overload       bool
+	
 	ExpectedTime   float64
+	ExpectedSynchronization *bool
 
 	Players []*Player
 	State GameState

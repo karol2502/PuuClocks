@@ -3,7 +3,10 @@ package actions
 type ActionType string
 
 var (
-	ActionTypeStartGame           ActionType = "start-game"
+	ActionTypeStartGame ActionType = "start-game"
+
+	// ServerActions
+	EndOfTurn ActionType = "validate-turn-result"
 
 	// Gameplay related
 	ActionTypeReportError         ActionType = "report-error"
@@ -15,20 +18,25 @@ type ActionData struct {
 	ReportedTime *float64
 }
 
-type Action struct {
+type Action interface {
+	GetType() ActionType
+	GetData() ActionData
+}
+
+type action struct {
 	Type ActionType
 	Data ActionData
 }
 
-func (a Action) GetType() ActionType {
+func (a action) GetType() ActionType {
 	return a.Type
 }
 
-func (a Action) GetData() ActionData {
+func (a action) GetData() ActionData {
 	return a.Data
 }
 
-func ValidateIsInstanceAction(data string) *Action {
+func ValidateIsInstanceAction(data string) *action {
 	if action := (ReportTime{}).Validate(data); action != nil {
 		return action
 	}

@@ -1,15 +1,15 @@
 package actions
 
 type SynchronizationRule struct {
-	Action
+	action
 }
 
-func (s SynchronizationRule) Validate(data string) *Action {
+func (s SynchronizationRule) Validate(data string) *action {
 	if data != string(ActionTypeSynchronizationRule) {
 		return nil
 	}
 
-	return &Action{
+	return &action{
 		Type: ActionTypeSynchronizationRule,
 	}
 }

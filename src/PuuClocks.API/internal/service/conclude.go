@@ -2,13 +2,14 @@ package service
 
 import (
 	"puuclocks/internal/models"
+	"puuclocks/internal/models/actions"
 	"puuclocks/internal/repository"
 
 	"github.com/google/uuid"
 )
 
 type Conclude interface {
-	ConcludeAction(game *models.Game, socketID uuid.UUID, action  models.Action) error
+	ConcludeAction(game *models.Game, socketID uuid.UUID, action actions.Action) error
 }
 
 type conclude struct {
@@ -21,7 +22,7 @@ func newConclude(redis repository.Redis) Conclude {
 	}
 }
 
-func (c conclude) ConcludeAction(game *models.Game, socketID uuid.UUID, action models.Action) error {
+func (c conclude) ConcludeAction(game *models.Game, socketID uuid.UUID, action actions.Action) error {
 	if game.AreRulesBroken {
 		return nil
 	}

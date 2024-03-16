@@ -7,10 +7,10 @@ import (
 )
 
 type ReportTime struct {
-	Action
+	action
 }
 
-func (r ReportTime) Validate(data string) *Action {
+func (r ReportTime) Validate(data string) *action {
 	d := strings.Split(data, "/")
 	if len(d) != 2 {
 		fmt.Println("Couldn't split")
@@ -33,7 +33,7 @@ func (r ReportTime) Validate(data string) *Action {
 		return nil
 	}
 
-	return &Action{
+	return &action{
 		Type: ActionTypeReportTime,
 		Data: ActionData{
 			ReportedTime: &parsedTime,

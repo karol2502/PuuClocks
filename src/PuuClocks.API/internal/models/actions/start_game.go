@@ -1,15 +1,15 @@
 package actions
 
 type StartGame struct {
-	Action
+	action
 }
 
-func (s StartGame) Validate(data string) *Action {
+func (s StartGame) Validate(data string) *action {
 	if data != string(ActionTypeStartGame) {
 		return nil
 	}
 
-	return &Action{
+	return &action{
 		Type: ActionTypeStartGame,
 	}
 }

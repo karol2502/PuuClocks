@@ -11,7 +11,7 @@ import (
 )
 
 type Validate interface {
-	ValidateAction(game *models.Game, socketID uuid.UUID, action models.Action) (bool, error)
+	ValidateAction(game *models.Game, socketID uuid.UUID, action actions.Action) (bool, error)
 }
 
 type validate struct{}
@@ -20,7 +20,7 @@ func newValidate() Validate {
 	return &validate{}
 }
 
-func (v validate) ValidateAction(game *models.Game, socketID uuid.UUID, action models.Action) (bool, error) {
+func (v validate) ValidateAction(game *models.Game, socketID uuid.UUID, action actions.Action) (bool, error) {
 	switch game.State {
 	case models.GameStateReportTime:
 		if action.GetType() != actions.ActionTypeReportTime {

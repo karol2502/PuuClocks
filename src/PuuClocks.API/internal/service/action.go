@@ -3,13 +3,14 @@ package service
 import (
 	"fmt"
 	"puuclocks/internal/models"
+	"puuclocks/internal/models/actions"
 	"puuclocks/internal/repository"
 
 	"github.com/google/uuid"
 )
 
 type Action interface {
-	PerformAction(game *models.Game, socketID uuid.UUID, action models.Action) error
+	PerformAction(game *models.Game, socketID uuid.UUID, action actions.Action) error
 }
 
 type action struct {
@@ -22,7 +23,7 @@ func newAction(redis repository.Redis) Action {
 	}
 }
 
-func (a action) PerformAction(game *models.Game, socketID uuid.UUID, action models.Action) error {
+func (a action) PerformAction(game *models.Game, socketID uuid.UUID, action actions.Action) error {
 	fmt.Println(action.GetType())
 
 	return nil
