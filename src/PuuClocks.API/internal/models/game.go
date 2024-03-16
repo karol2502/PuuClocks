@@ -14,9 +14,17 @@ type Game struct {
 	Overload       bool
 	ExpectedTime   float64
 
-	State      []*Player
+	Players []*Player
+	State GameState
 	Scoreboard map[*Player]int
 }
+
+type GameState int
+const (
+	GameStateReportTime GameState = iota
+	GameStateAction
+	GameStateSynchronization
+)
 
 type Rule struct {
 	WhenID int64
