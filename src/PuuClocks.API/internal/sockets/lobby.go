@@ -16,7 +16,6 @@ type Lobby interface {
 	LeaveLobby(Client)
 
 	ForwardMessage(Message)
-	Broadcast(message string)
 }
 
 type lobby struct {
@@ -24,9 +23,10 @@ type lobby struct {
 
 	Owner Client
 
-	Join    chan Client
-	Leave   chan Client
-	Forward chan Message
+	Join      chan Client
+	Leave     chan Client
+	Forward   chan Message
+	Broadcast chan string
 
 	Clients map[Client]bool
 
@@ -44,16 +44,16 @@ type Message struct {
 }
 
 func NewLobby(gameplay service.Gameplay) Lobby {
-	gameplay
 	id := uuid.New()
 
 	l := lobby{
 		ID: id,
 
-		Forward: make(chan Message),
-		Join:    make(chan Client),
-		Leave:   make(chan Client),
-		Clients: make(map[Client]bool),
+		Forward:   make(chan Message),
+		Join:      make(chan Client),
+		Leave:     make(chan Client),
+		Clients:   make(map[Client]bool),
+		Broadcast: make(chan string),
 
 		Gameplay: gameplay,
 	}
@@ -78,7 +78,14 @@ func (l *lobby) run() {
 				fmt.Println("There was a error during valdiation")
 				break
 			}
-			l.Gameplay.ProcessAction(l.Game, msg.SocketID, *action)
+			_, err := l.Gameplay.ProcessAction(l.Game, msg.SocketID, *action, l.Broadcast)
+			if err != nil {
+
+			}
+		case msg := <-l.Broadcast:
+			for c, _ := range l.Clients {
+				c.SendMessage([]byte(msg))
+			}
 		}
 	}
 }
@@ -101,10 +108,4 @@ func (l *lobby) JoinLobby(c Client) {
 
 func (l *lobby) LeaveLobby(c Client) {
 	l.Leave <- c
-}
-
-func (l *lobby) Broadcast(message string) {
-	for c, _ := range l.Clients {
-		c.SendMessage([]byte(message))
-	}
 }

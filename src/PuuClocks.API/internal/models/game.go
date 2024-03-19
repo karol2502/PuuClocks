@@ -16,6 +16,7 @@ type Game struct {
 
 	ExpectedTime            float64
 	ExpectedSynchronization bool
+	Synchronization         map[uuid.UUID]bool
 
 	Players    []*Player
 	State      GameState
@@ -33,7 +34,7 @@ const (
 type GameDirection bool
 
 const (
-	GameDirectionClockWise GameDirection = true
+	GameDirectionClockWise        GameDirection = true
 	GameDirectionCounterClockWise GameDirection = false
 )
 

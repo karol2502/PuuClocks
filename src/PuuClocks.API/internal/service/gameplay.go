@@ -8,31 +8,34 @@ import (
 )
 
 type Gameplay interface {
-	ProcessAction(game *models.Game, socketID uuid.UUID, action actions.Action) (bool, error)
+	ProcessAction(game *models.Game, socketID uuid.UUID, action actions.Action, broadcast chan (string)) (bool, error)
 }
 
 type gameplay struct {
-	validate Validate
-	action   Action
-	conclude Conclude
+	validator        Validator
+	faultChecker     FoulChecker
+	actionExecutor   ActionExecutor
+	outcomeEvaluator OutcomeEvaluator
 }
 
 type gamePlayServices struct {
-	Validate Validate
-	Action   Action
-	Conclude Conclude
+	validator        Validator
+	faultChecker     FoulChecker
+	actionExecutor   ActionExecutor
+	outcomeEvaluator OutcomeEvaluator
 }
 
 func newGameplay(services gamePlayServices) Gameplay {
 	return &gameplay{
-		validate: services.Validate,
-		action:   services.Action,
-		conclude: services.Conclude,
+		validator:        services.validator,
+		actionExecutor:   services.actionExecutor,
+		faultChecker:     services.faultChecker,
+		outcomeEvaluator: services.outcomeEvaluator,
 	}
 }
 
-func (g gameplay) ProcessAction(game *models.Game, socketID uuid.UUID, action actions.Action) (bool, error) {
-	canBePerformed, err := g.validate.ValidateAction(game, socketID, action)
+func (g gameplay) ProcessAction(game *models.Game, socketID uuid.UUID, action actions.Action, broadcast chan (string)) (bool, error) {
+	canBePerformed, err := g.validator.ValidateAction(game, socketID, action)
 	if err != nil {
 		return true, err
 	}
@@ -41,15 +44,17 @@ func (g gameplay) ProcessAction(game *models.Game, socketID uuid.UUID, action ac
 		return false, nil
 	}
 
-	err = g.conclude.ConcludeAction(game, socketID, action)
+	err = g.faultChecker.CheckForFaul(game, socketID, action)
 	if err != nil {
 		return true, err
 	}
 
-	err = g.action.PerformAction(game, socketID, action)
+	err = g.actionExecutor.Execute(game, socketID, action)
 	if err != nil {
 		return true, err
 	}
+
+	g.outcomeEvaluator.ShouldPunishOrAward()
 
 	return g.shouldCloseGame(game, socketID, action)
 }

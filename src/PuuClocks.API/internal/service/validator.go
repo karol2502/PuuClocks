@@ -10,21 +10,21 @@ import (
 	"github.com/google/uuid"
 )
 
-type Validate interface {
+type Validator interface {
 	ValidateAction(game *models.Game, socketID uuid.UUID, action actions.Action) (bool, error)
 }
 
-type validate struct{}
+type validator struct{}
 
-func newValidate() Validate {
-	return &validate{}
+func newValidate() Validator {
+	return &validator{}
 }
 
-func (v validate) ValidateAction(game *models.Game, socketID uuid.UUID, action actions.Action) (bool, error) {
+func (v validator) ValidateAction(game *models.Game, socketID uuid.UUID, action actions.Action) (bool, error) {
 	if action.GetType() == actions.ActionTypeEndOfTurn {
 		return true, nil
 	}
-	
+
 	switch game.State {
 	case models.GameStateReportTime:
 		if action.GetType() != actions.ActionTypeReportTime {

@@ -1,6 +1,10 @@
 package actions
 
-import "puuclocks/internal/models"
+import (
+	"puuclocks/internal/models"
+
+	"github.com/google/uuid"
+)
 
 type ActionType string
 
@@ -24,6 +28,7 @@ var (
 type ActionData struct {
 	ReportedTime *float64
 	State        *models.GameState
+	ReporterID *uuid.UUID
 }
 
 type Action interface {
@@ -45,20 +50,20 @@ func (a action) GetData() ActionData {
 }
 
 func ValidateIfUserProvidedActionInstance(data string) *action {
-	if action := (ReportTime{}).Validate(data); action != nil {
-		return action
+	if a := (ReportTime{}).Validate(data); a != nil {
+		return a
 	}
 
-	if action := (ReportError{}).Validate(data); action != nil {
-		return action
+	if a := (ReportError{}).Validate(data); a != nil {
+		return a
 	}
 
-	if action := (StartGame{}).Validate(data); action != nil {
-		return action
+	if a := (StartGame{}).Validate(data); a != nil {
+		return a
 	}
 
-	if action := (SynchronizationRule{}).Validate(data); action != nil {
-		return action
+	if a := (SynchronizationRule{}).Validate(data); a != nil {
+		return a
 	}
 
 	return nil
