@@ -9,6 +9,7 @@ type Service interface{
 	Validate() Validate
 	Action() Action
 	Conclude() Conclude 
+	Broadcast() Broadcast
 }
 
 type service struct{
@@ -16,10 +17,12 @@ type service struct{
 	validate Validate
 	action Action
 	conclude Conclude
+	broadcast Broadcast
 }
 
 func NewService(databases repository.Databases) Service {
 	validate := newValidate()
+	broadcast := newBroadcast()
 	action := newAction(databases.RedisDB())
 	conclude := newConclude(databases.RedisDB())
 	
@@ -32,6 +35,7 @@ func NewService(databases repository.Databases) Service {
 			Action: action,
 			Conclude: conclude,
 		}),
+		broadcast: broadcast,
 	}
 }
 
@@ -49,4 +53,8 @@ func (s *service) Action() Action {
 
 func (s *service) Conclude() Conclude {
 	return s.conclude
+}
+
+func (s *service) Broadcast() Broadcast {
+	return s.broadcast
 }

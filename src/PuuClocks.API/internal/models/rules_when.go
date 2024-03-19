@@ -6,7 +6,7 @@ var RulesWhen = map[int]func(*Game, *Card) bool{
 }
 
 func SameClockRule(g *Game, c *Card) bool {
-	return g.LastCalledTime == c.Hour
+	return g.LastCalledTime != nil && *g.LastCalledTime == c.Hour
 }
 
 func WehicleCard(g *Game, c *Card) bool {

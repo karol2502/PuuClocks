@@ -7,8 +7,13 @@ type ActionType string
 var (
 	ActionTypeStartGame ActionType = "start-game"
 
-	// ServerActions
-	ActionTypeEndOfTurn ActionType = "validate-turn-result"
+	// Server Actions
+	ActionTypeEndOfTurn ActionType = "end-of-turn"
+
+	// Server Actions Turn Related
+	ActionTypeBeginReportTimeTurn   ActionType = "begin-report-time-turn"
+	ActionTypeBegginActionTurn      ActionType = "begin-action-turn"
+	ActionTypeBeginSynchronizedTurn ActionType = "begin-synchronization-turn"
 
 	// Gameplay related
 	ActionTypeReportError         ActionType = "report-error"
@@ -18,7 +23,7 @@ var (
 
 type ActionData struct {
 	ReportedTime *float64
-	State *models.GameState
+	State        *models.GameState
 }
 
 type Action interface {
@@ -39,7 +44,7 @@ func (a action) GetData() ActionData {
 	return a.Data
 }
 
-func ValidateIsInstanceAction(data string) *action {
+func ValidateIfUserProvidedActionInstance(data string) *action {
 	if action := (ReportTime{}).Validate(data); action != nil {
 		return action
 	}

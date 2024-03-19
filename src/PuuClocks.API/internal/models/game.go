@@ -10,28 +10,36 @@ type Game struct {
 
 	AreRulesBroken bool
 	Turn           int
-	Direction      bool
+	Direction      GameDirection
 
-	LastCalledTime float64
-	
-	ExpectedTime   float64
+	LastCalledTime *float64
+
+	ExpectedTime            float64
 	ExpectedSynchronization bool
 
-	Players []*Player
-	State GameState
+	Players    []*Player
+	State      GameState
 	Scoreboard map[*Player]int
 }
 
 type GameState int
+
 const (
 	GameStateReportTime GameState = iota
 	GameStateAction
 	GameStateSynchronization
 )
 
+type GameDirection bool
+
+const (
+	GameDirectionClockWise GameDirection = true
+	GameDirectionCounterClockWise GameDirection = false
+)
+
 func NewGame() Game {
 	return Game{
-		ID: uuid.New(),
+		ID:    uuid.New(),
 		Rules: DefaultRules(),
 	}
 }

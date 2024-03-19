@@ -16,6 +16,7 @@ type Lobby interface {
 	LeaveLobby(Client)
 
 	ForwardMessage(Message)
+	Broadcast(message string)
 }
 
 type lobby struct {
@@ -29,7 +30,7 @@ type lobby struct {
 
 	Clients map[Client]bool
 
-	Game *models.Game
+	Game     *models.Game
 	Gameplay service.Gameplay
 
 	Settings Settings
@@ -39,10 +40,11 @@ type Settings struct{}
 
 type Message struct {
 	SocketID uuid.UUID
-	Data string
+	Data     string
 }
 
 func NewLobby(gameplay service.Gameplay) Lobby {
+	gameplay
 	id := uuid.New()
 
 	l := lobby{
@@ -71,10 +73,10 @@ func (l *lobby) run() {
 			client.Close()
 		case msg := <-l.Forward:
 			fmt.Println("Action From: ", msg.SocketID, " Data: ", msg.Data)
-			action := actions.ValidateIsInstanceAction(msg.Data)
+			action := actions.ValidateIfUserProvidedActionInstance(msg.Data)
 			if action == nil {
 				fmt.Println("There was a error during valdiation")
-				break;
+				break
 			}
 			l.Gameplay.ProcessAction(l.Game, msg.SocketID, *action)
 		}
@@ -101,6 +103,8 @@ func (l *lobby) LeaveLobby(c Client) {
 	l.Leave <- c
 }
 
-func (l *lobby) StartGame() {
+func (l *lobby) Broadcast(message string) {
+	for c, _ := range l.Clients {
+		c.SendMessage([]byte(message))
+	}
 }
-

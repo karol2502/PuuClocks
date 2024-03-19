@@ -8,7 +8,7 @@ import (
 )
 
 type Client interface {
-	ReceiveMessage([]byte)
+	SendMessage([]byte)
 	Close()
 }
 
@@ -73,7 +73,7 @@ func (c *client) Write() {
 	}
 }
 
-func (c *client) ReceiveMessage(msg []byte) {
+func (c *client) SendMessage(msg []byte) {
 	c.Receive <- msg
 }
 

@@ -27,6 +27,15 @@ func (r Rule) Then(g *Game) error {
 	return nil
 }
 
+func (r Rule) RetrieveThen() (func(*Game), error) {
+	then, ok := RulesThen[r.ThenID]
+	if !ok {
+		return nil, fmt.Errorf("couldn't find then rule with %d id", r.ThenID)
+	}
+
+	return then, nil
+}
+
 func DefaultRules() []Rule {
 	return []Rule{
 		{
