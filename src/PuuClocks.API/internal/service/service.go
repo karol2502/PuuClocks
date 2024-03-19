@@ -6,35 +6,35 @@ import (
 
 type Service interface {
 	Gameplay() Gameplay
-	Validate() Validator
-	Action() ActionExecutor
-	Conclude() FoulChecker
+	Validator() Validator
+	ActionExecutor() ActionExecutor
+	FoulChecker() FoulChecker
 	OutcomeEvaluator() OutcomeEvaluator
 }
 
 type service struct {
 	gameplay         Gameplay
-	validate         Validator
-	action           ActionExecutor
-	conclude         FoulChecker
+	validator         Validator
+	actionExecutor           ActionExecutor
+	foulChecker         FoulChecker
 	outcomeEvaluator OutcomeEvaluator
 }
 
 func NewService(databases repository.Databases) Service {
-	validate := newValidate()
+	validator := newValidate()
 	outcomeEvaluator := newOutcomeEvaluator()
-	action := newAction(databases.RedisDB())
-	conclude := newFoulChecker(databases.RedisDB())
+	foulChecker := newFoulChecker(databases.RedisDB())
+	actionExecutor := newActionExecuter(databases.RedisDB())
 
 	return &service{
-		action:           action,
-		conclude:         conclude,
-		validate:         validate,
+		actionExecutor:           actionExecutor,
+		foulChecker:         foulChecker,
+		validator:         validator,
 		outcomeEvaluator: outcomeEvaluator,
 		gameplay: newGameplay(gamePlayServices{
-			validator:        validate,
-			actionExecutor:   action,
-			faultChecker:     conclude,
+			validator:        validator,
+			actionExecutor:   actionExecutor,
+			foulChecker:     foulChecker,
 			outcomeEvaluator: outcomeEvaluator,
 		}),
 	}
@@ -44,16 +44,16 @@ func (s *service) Gameplay() Gameplay {
 	return s.gameplay
 }
 
-func (s *service) Validate() Validator {
-	return s.validate
+func (s *service) Validator() Validator {
+	return s.validator
 }
 
-func (s *service) Action() ActionExecutor {
-	return s.action
+func (s *service) ActionExecutor() ActionExecutor {
+	return s.actionExecutor
 }
 
-func (s *service) Conclude() FoulChecker {
-	return s.conclude
+func (s *service) FoulChecker() FoulChecker {
+	return s.foulChecker
 }
 
 func (s *service) OutcomeEvaluator() OutcomeEvaluator {

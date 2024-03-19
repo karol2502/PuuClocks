@@ -12,7 +12,8 @@ type Game struct {
 	Turn           int
 	Direction      GameDirection
 
-	LastCalledTime *float64
+	LastCalledTime   *float64
+	LastActionCaller *Player
 
 	ExpectedTime            float64
 	ExpectedSynchronization bool

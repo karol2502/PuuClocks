@@ -18,7 +18,7 @@ type actionExecutor struct {
 	redis repository.Redis
 }
 
-func newAction(redis repository.Redis) ActionExecutor {
+func newActionExecuter(redis repository.Redis) ActionExecutor {
 	return &actionExecutor{
 		redis: redis,
 	}

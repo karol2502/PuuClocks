@@ -13,14 +13,14 @@ type Gameplay interface {
 
 type gameplay struct {
 	validator        Validator
-	faultChecker     FoulChecker
+	foulChecker     FoulChecker
 	actionExecutor   ActionExecutor
 	outcomeEvaluator OutcomeEvaluator
 }
 
 type gamePlayServices struct {
 	validator        Validator
-	faultChecker     FoulChecker
+	foulChecker     FoulChecker
 	actionExecutor   ActionExecutor
 	outcomeEvaluator OutcomeEvaluator
 }
@@ -29,7 +29,7 @@ func newGameplay(services gamePlayServices) Gameplay {
 	return &gameplay{
 		validator:        services.validator,
 		actionExecutor:   services.actionExecutor,
-		faultChecker:     services.faultChecker,
+		foulChecker:     services.foulChecker,
 		outcomeEvaluator: services.outcomeEvaluator,
 	}
 }
@@ -44,7 +44,7 @@ func (g gameplay) ProcessAction(game *models.Game, socketID uuid.UUID, action ac
 		return false, nil
 	}
 
-	err = g.faultChecker.CheckForFaul(game, socketID, action)
+	err = g.foulChecker.CheckForFaul(game, socketID, action)
 	if err != nil {
 		return true, err
 	}
