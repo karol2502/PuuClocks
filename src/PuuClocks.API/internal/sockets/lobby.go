@@ -1,6 +1,11 @@
 package sockets
 
 import (
+	"fmt"
+	"puuclocks/internal/models"
+	"puuclocks/internal/models/actions"
+	"puuclocks/internal/service"
+
 	"github.com/google/uuid"
 )
 
@@ -10,7 +15,7 @@ type Lobby interface {
 	JoinLobby(Client)
 	LeaveLobby(Client)
 
-	ForwardMessage([]byte)
+	ForwardMessage(Message)
 }
 
 type lobby struct {
@@ -18,23 +23,39 @@ type lobby struct {
 
 	Owner Client
 
-	Join    chan Client
-	Leave   chan Client
-	Forward chan []byte
+	Join      chan Client
+	Leave     chan Client
+	Forward   chan Message
+	Broadcast chan string
 
 	Clients map[Client]bool
+
+	Game     *models.Game
+	Gameplay service.Gameplay
+
+	Settings Settings
 }
 
-func NewLobby() Lobby {
+type Settings struct{}
+
+type Message struct {
+	SocketID uuid.UUID
+	Data     string
+}
+
+func NewLobby(gameplay service.Gameplay) Lobby {
 	id := uuid.New()
 
 	l := lobby{
 		ID: id,
 
-		Forward: make(chan []byte),
-		Join:    make(chan Client),
-		Leave:   make(chan Client),
-		Clients: make(map[Client]bool),
+		Forward:   make(chan Message),
+		Join:      make(chan Client),
+		Leave:     make(chan Client),
+		Clients:   make(map[Client]bool),
+		Broadcast: make(chan string),
+
+		Gameplay: gameplay,
 	}
 
 	go l.run()
@@ -51,18 +72,29 @@ func (l *lobby) run() {
 			delete(l.Clients, client)
 			client.Close()
 		case msg := <-l.Forward:
-			for c := range l.Clients {
-				c.ReceiveMessage(msg)
+			fmt.Println("Action From: ", msg.SocketID, " Data: ", msg.Data)
+			action := actions.ValidateIfUserProvidedActionInstance(msg.Data)
+			if action == nil {
+				fmt.Println("There was a error during valdiation")
+				break
+			}
+			_, err := l.Gameplay.ProcessAction(l.Game, msg.SocketID, *action, l.Broadcast)
+			if err != nil {
+
+			}
+		case msg := <-l.Broadcast:
+			for c, _ := range l.Clients {
+				c.SendMessage([]byte(msg))
 			}
 		}
 	}
 }
 
-func (l lobby) GetID() uuid.UUID {
+func (l *lobby) GetID() uuid.UUID {
 	return l.ID
 }
 
-func (l lobby) ForwardMessage(msg []byte) {
+func (l *lobby) ForwardMessage(msg Message) {
 	l.Forward <- msg
 }
 
@@ -74,6 +106,6 @@ func (l *lobby) JoinLobby(c Client) {
 	l.Join <- c
 }
 
-func (l lobby) LeaveLobby(c Client) {
+func (l *lobby) LeaveLobby(c Client) {
 	l.Leave <- c
 }

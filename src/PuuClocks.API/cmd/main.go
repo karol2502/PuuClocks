@@ -5,6 +5,7 @@ import (
 	"puuclocks/internal/infrastructure"
 	"puuclocks/internal/log"
 	"puuclocks/internal/repository"
+	"puuclocks/internal/service"
 	"puuclocks/internal/sockets"
 	"time"
 
@@ -26,10 +27,12 @@ func main() {
 
 	log.InitLogger()
 
-	_, err := repository.NewDatabases(&dbCfg)
+	databases, err := repository.NewDatabases(&dbCfg)
 	if err != nil {
 		panic(err)
 	}
+
+	service := service.NewService(databases)
 
 	r := gin.Default()
 	r.GET("/ping", func(c *gin.Context) {
@@ -40,7 +43,7 @@ func main() {
 
 	lobbyManager := sockets.NewLobbyManager()
 	r.POST("/create-lobby", func(c *gin.Context) {
-		lobby := lobbyManager.CreateLobby()
+		lobby := lobbyManager.CreateLobby(service.Gameplay())
 		c.JSON(http.StatusOK, gin.H{
 			"lobbyID": lobby.GetID(),
 		})
